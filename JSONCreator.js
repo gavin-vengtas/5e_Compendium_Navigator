@@ -10,14 +10,12 @@ let traitJSON = {
 };
 
 data.compendium.monster.forEach((monster) => {
-    console.log(monster.name);
     if(monster.trait){
             //read each available trait
             monster.trait.forEach((element) => {
                 let traitName = element.name;
-                let description = buildDescription(element.text);
                 let fullNamesArr = monster.name.split(" ");
-                let totalNames = fullNamesArr.length-1;
+                let description = buildDescription(element.text,fullNamesArr);
                 let spellLevel = findOrdinals(description);
                 let spellAbility = getSpellAbility(description);
                 let spells = (traitName=="Spellcasting")?getDescrSpells(element.text):{};
@@ -25,25 +23,6 @@ data.compendium.monster.forEach((monster) => {
                 if (traitName=="Spellcasting") {
                     traitJSON.compendium.trait[traitName] = traitJSON.compendium.trait[traitName]?traitJSON.compendium.trait[traitName]:{};
                     traitJSON.compendium.trait[traitName][spellLevel] = traitJSON.compendium.trait[traitName][spellLevel] ?? [];
-
-                } else {
-                    traitJSON.compendium.trait[traitName] = traitJSON.compendium.trait[traitName]?traitJSON.compendium.trait[traitName]:[];
-                }
-
-                if(totalNames>0){
-                    for(let index = 0; index < totalNames; index++){
-                        description = description.replace(new RegExp(fullNamesArr[index]+" ","g"),"");
-                        description = description.replace(new RegExp(fullNamesArr[index].toLocaleLowerCase()+" ","g"),"");
-                    }
-                }
-
-                description = description.replace(new RegExp(fullNamesArr[totalNames],"g"),"creature");
-                description = description.replace(new RegExp(fullNamesArr[totalNames].toLocaleLowerCase(),"g"),"creature");
-
-                console.log(description);
-                if (traitName!="Spellcasting") {                    
-                    traitJSON.compendium.trait[traitName].push(description);
-                } else {
                     traitJSON.compendium.trait[traitName][spellLevel].push({
                         "ability": spellAbility,
                         "spellsave DC": getDC(description),
@@ -51,6 +30,18 @@ data.compendium.monster.forEach((monster) => {
                         "description":description,
                         ...spells,
                     });
+
+                } else {
+                    traitJSON.compendium.trait[traitName] = traitJSON.compendium.trait[traitName]?traitJSON.compendium.trait[traitName]:[];
+                    let found = traitJSON.compendium.trait[traitName].find((element) => element == description.trim())!=undefined;
+
+                    if (!found) {
+                        if (description.trim().endsWith('.')) {
+                            traitJSON.compendium.trait[traitName].push(description.slice(0, -1).trim());
+                        } else {
+                            traitJSON.compendium.trait[traitName].push(description.trim());
+                        }
+                    }
                 }
             });
         }
@@ -72,14 +63,25 @@ function findOrdinals(inputString) {
     }
   }
 
-function buildDescription(textArr) {
+function buildDescription(textArr, fullNamesArr=[]) {
     let description = "";
+    let totalNames = fullNamesArr.length-1;
 
     textArr.forEach((sentence)=>{
         if (sentence) {
             description += sentence + "\n";                        
         }
     });
+
+    if(totalNames>0){
+        for(let index = 0; index < totalNames; index++){
+            description = description.replace(new RegExp(fullNamesArr[index]+" ","g"),"");
+            description = description.replace(new RegExp(fullNamesArr[index].toLocaleLowerCase()+" ","g"),"");
+        }
+    }
+
+    description = description.replace(new RegExp(fullNamesArr[totalNames],"g"),"creature");
+    description = description.replace(new RegExp(fullNamesArr[totalNames].toLocaleLowerCase(),"g"),"creature");
 
     return description;
 }
