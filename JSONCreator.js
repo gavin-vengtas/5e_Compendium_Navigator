@@ -33,22 +33,7 @@ data.compendium.monster.forEach((monster) => {
 
                 } else {
                     traitJSON.compendium.trait[traitName] = traitJSON.compendium.trait[traitName]??[];
-
-                    //check if description already exists within array of descriptions
-                    // let found = traitJSON.compendium.trait[traitName].find((element) => {
-                    //     return element.toLocaleLowerCase().trim() == description.trim();
-                    // })!=undefined;
-
-                    let found = searchArrStr(description.trim(),traitJSON.compendium.trait[traitName], traitName=="Amphibious");
-
-                    // if(traitName=="Amphibious"){                        
-                    //     console.log(`${index}.`);
-                    //     console.log(`Current Array: `,traitJSON.compendium.trait[traitName]);
-                    //     console.log(`Current Description: `,description.trim());
-                    //     console.log("found:",found);
-                    //     console.log("!found:",!found);
-                    //     console.log();
-                    // }
+                    let found = searchArrStr(description.trim(),traitJSON.compendium.trait[traitName]);
 
                     if (!found) {
                         if (description.trim().endsWith('.')) {
@@ -170,30 +155,14 @@ function getHit(inputString){
     }   
 }
 
-function searchArrStr(inputString = "", inputArr = [], cLog = false){
+function searchArrStr(inputString = "", inputArr = []){
     let found = false;
-    
-    if (cLog) {        
-        console.log("looking for: ", inputString);
-        console.log("checking in: ", inputArr);
-    }
 
     inputArr.forEach((element,index) => {
-        if (cLog) {
-            console.log(`${index}. ${element}`);            
-        }
         if(inputString==element){
             found = true;
-        }
-        if (cLog) {
-            console.log(`found: ${found}`);  
-        }      
+        }    
     });
-
-    if (cLog) {
-        console.log(`was the element found: ${found}`);  
-        console.log("")
-    }
 
     return found;
 }
