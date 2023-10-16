@@ -12,7 +12,7 @@ let traitJSON = {
 data.compendium.monster.forEach((monster) => {
     if(monster.trait){
             //read each available trait
-            monster.trait.forEach((element) => {
+            monster.trait.forEach((element,index) => {
                 let traitName = element.name;
                 let fullNamesArr = monster.name.split(" ");
                 let description = buildDescription(element.text,fullNamesArr);
@@ -32,8 +32,23 @@ data.compendium.monster.forEach((monster) => {
                     });
 
                 } else {
-                    traitJSON.compendium.trait[traitName] = traitJSON.compendium.trait[traitName]?traitJSON.compendium.trait[traitName]:[];
-                    let found = traitJSON.compendium.trait[traitName].find((element) => element == description.trim())!=undefined;
+                    traitJSON.compendium.trait[traitName] = traitJSON.compendium.trait[traitName]??[];
+
+                    //check if description already exists within array of descriptions
+                    // let found = traitJSON.compendium.trait[traitName].find((element) => {
+                    //     return element.toLocaleLowerCase().trim() == description.trim();
+                    // })!=undefined;
+
+                    let found = searchArrStr(description.trim(),traitJSON.compendium.trait[traitName], traitName=="Amphibious");
+
+                    // if(traitName=="Amphibious"){                        
+                    //     console.log(`${index}.`);
+                    //     console.log(`Current Array: `,traitJSON.compendium.trait[traitName]);
+                    //     console.log(`Current Description: `,description.trim());
+                    //     console.log("found:",found);
+                    //     console.log("!found:",!found);
+                    //     console.log();
+                    // }
 
                     if (!found) {
                         if (description.trim().endsWith('.')) {
@@ -47,7 +62,7 @@ data.compendium.monster.forEach((monster) => {
         }
 });
 
-fs.writeFile('traits2.json', JSON.stringify(traitJSON), 'utf8', ()=>{
+fs.writeFile('traits1.json', JSON.stringify(traitJSON), 'utf8', ()=>{
     console.log('Written to file: traits.json');
 });
 
@@ -153,6 +168,34 @@ function getHit(inputString){
     } else {
       return 'No Hit Found';
     }   
+}
+
+function searchArrStr(inputString = "", inputArr = [], cLog = false){
+    let found = false;
+    
+    if (cLog) {        
+        console.log("looking for: ", inputString);
+        console.log("checking in: ", inputArr);
+    }
+
+    inputArr.forEach((element,index) => {
+        if (cLog) {
+            console.log(`${index}. ${element}`);            
+        }
+        if(inputString==element){
+            found = true;
+        }
+        if (cLog) {
+            console.log(`found: ${found}`);  
+        }      
+    });
+
+    if (cLog) {
+        console.log(`was the element found: ${found}`);  
+        console.log("")
+    }
+
+    return found;
 }
 
 // console.log(spellJSON);
